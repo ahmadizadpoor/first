@@ -3,6 +3,7 @@ import type { Listing } from '../types.js';
 import { sleep, normalizeText, extractNumber, sanitizeUrl } from '../utils.js';
 import { config, urls } from '../config.js';
 import { fetchUrl } from '../fetcher.js';
+import { getManualHtmlLoader } from '../manual-parser.js';
 import pLimit from 'p-limit';
 
 export class JajigaScraper {
@@ -46,6 +47,19 @@ export class JajigaScraper {
     const listingUrls: string[] = [];
 
     try {
+      // In manual mode, get listings from saved HTML files
+      if (config.scrapingMethod === 'manual') {
+        const loader = getManualHtmlLoader();
+        const listingPages = loader.getListingPages('jajiga');
+
+        // Return the filenames directly - the fetcher will handle manual mode
+        for (const [id, _] of listingPages) {
+          listingUrls.push(`manual://${id}`);
+        }
+
+        return listingUrls;
+      }
+
       // Try to get listings from the main search/listings page
       const html = await fetchUrl(urls.jajiga.search || urls.jajiga.base);
       const $ = cheerio.load(html);

@@ -15,6 +15,13 @@ import { getManualHtmlLoader } from './manual-parser.js';
 
 export class UnifiedFetcher {
   async fetch(url: string, options?: { waitForSelector?: string; manualFilename?: string }): Promise<string> {
+    // Handle manual:// protocol for direct filename reference
+    if (url.startsWith('manual://')) {
+      const filename = url.replace('manual://', '') + '.html';
+      console.log(`🔄 Fetching (manual mode): ${filename}`);
+      return await this.fetchManual(filename);
+    }
+
     console.log(`🔄 Fetching (${config.scrapingMethod} mode): ${url}`);
 
     switch (config.scrapingMethod) {

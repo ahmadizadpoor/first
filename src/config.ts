@@ -8,7 +8,7 @@ export const config: CrawlerConfig = {
   userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
 
   // Scraping method: 'http', 'browser', or 'manual'
-  scrapingMethod: 'http', // Using HTTP mode (browser requires Chrome installation)
+  scrapingMethod: 'manual', // Using manual mode with sample HTML files
 
   // Browser options
   headless: true, // Set to false to see the browser
