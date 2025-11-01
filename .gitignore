@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.log
+.env
+*.csv
+*.json.bak
+data/
+output/

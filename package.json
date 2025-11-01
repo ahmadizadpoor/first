@@ -1,0 +1,26 @@
+{
+  "name": "jabama-jajiga-crawler",
+  "version": "1.0.0",
+  "description": "A crawler to scrape and compare listings from jabama.com and jajiga.com",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "crawl": "npm run build && npm start"
+  },
+  "keywords": ["crawler", "scraper", "jabama", "jajiga"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "cheerio": "^1.0.0-rc.12",
+    "p-limit": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}
