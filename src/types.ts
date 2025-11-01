@@ -35,6 +35,18 @@ export interface CrawlerConfig {
   timeout: number;
   retryAttempts: number;
   userAgent: string;
+  // Scraping method: 'http' (axios), 'browser' (puppeteer), 'manual' (local HTML files)
+  scrapingMethod: 'http' | 'browser' | 'manual';
+  // Browser-specific options
+  headless: boolean;
+  browserTimeout: number;
+  // Proxy settings
+  useProxy: boolean;
+  proxyList?: string[];
+  // Cookie and session management
+  cookieFile?: string;
+  // Manual mode settings
+  manualHtmlDir?: string;
 }
 
 export interface CrawlerStats {

@@ -1,64 +1,243 @@
 # Jabama vs Jajiga Listing Comparison Crawler
 
-A TypeScript-based web crawler that scrapes property listings from Jabama.com and Jajiga.com, then intelligently compares and matches them to identify duplicate listings across both platforms.
+A comprehensive TypeScript-based web crawler that scrapes property listings from Jabama.com and Jajiga.com, then intelligently compares and matches them to identify duplicate listings across both platforms.
 
-## Features
+## 🌟 Features
 
-- **Dual-site scraping**: Automatically scrapes listings from both Jabama.com and Jajiga.com
-- **Intelligent matching**: Uses fuzzy string matching and weighted scoring to find matching listings
-- **Comprehensive comparison**: Compares titles, locations, prices, capacity, bedrooms, and more
-- **Detailed reporting**: Generates human-readable reports and JSON outputs
-- **Rate limiting**: Built-in concurrency control and request delays to be respectful to servers
-- **Error handling**: Robust retry logic and error recovery
-- **TypeScript**: Fully typed codebase for better maintainability
+- **Multiple Scraping Methods**:
+  - 🌐 **Browser Automation** (Puppeteer with stealth) - Most reliable
+  - 🔌 **HTTP Requests** (Enhanced axios with cookies) - Fastest
+  - 📁 **Manual Mode** (Load from saved HTML files) - For testing
 
-## Prerequisites
+- **Anti-Detection Measures**:
+  - Stealth browser mode to avoid bot detection
+  - Realistic headers and user agents
+  - Cookie persistence across sessions
+  - Proxy rotation support
+  - Random delays and human-like scrolling
 
-- Node.js 18+
-- npm or yarn
+- **Intelligent Matching**:
+  - Fuzzy string matching with weighted scoring
+  - Compares titles, locations, prices, capacity, bedrooms, description
+  - Classifies matches as exact, partial, or none
 
-## Installation
+- **Additional Tools**:
+  - API detection utility
+  - Screenshot capture
+  - Detailed reporting and statistics
+  - Progress tracking
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd jabama-jajiga-crawler
-```
+## 📋 Prerequisites
 
-2. Install dependencies:
+- Node.js 18+ (includes npm)
+- For browser mode: Chrome/Chromium will be installed automatically by Puppeteer
+
+## 🚀 Quick Start
+
+### 1. Install Dependencies
+
 ```bash
 npm install
 ```
 
-## Usage
+### 2. Run the Crawler
 
-### Quick Start
+The crawler defaults to browser automation mode for best results:
 
-Run the crawler with development mode (no build required):
 ```bash
 npm run dev
 ```
 
-Or build and run in production mode:
-```bash
-npm run build
-npm start
+## ⚙️ Configuration
+
+Edit `src/config.ts` to customize the crawler:
+
+```typescript
+export const config: CrawlerConfig = {
+  // Scraping method: 'browser', 'http', or 'manual'
+  scrapingMethod: 'browser',
+
+  // Browser settings
+  headless: true,              // Set false to see browser
+  browserTimeout: 60000,       // Browser operation timeout
+
+  // Request settings
+  maxConcurrency: 3,           // Simultaneous requests
+  requestDelay: 2000,          // Delay between requests (ms)
+  timeout: 30000,              // Request timeout
+  retryAttempts: 3,            // Retry failed requests
+
+  // Proxy settings
+  useProxy: false,
+  proxyList: [
+    // 'http://proxy1:8080',
+    // 'http://user:pass@proxy2:8080'
+  ],
+
+  // Cookie persistence
+  cookieFile: 'cookies.json',
+
+  // Manual mode directory
+  manualHtmlDir: 'manual-html'
+};
 ```
 
-Or use the combined command:
+## 🔧 Usage Modes
+
+### Mode 1: Browser Automation (Default - Recommended)
+
+Uses Puppeteer with stealth plugin to bypass anti-bot protections.
+
 ```bash
-npm run crawl
+# Run with browser automation
+npm run crawl:browser
 ```
 
-### Output
+**Advantages:**
+- Best success rate against anti-bot measures
+- Handles JavaScript-rendered content
+- Can solve basic anti-bot challenges
+- Realistic browser fingerprint
 
-The crawler will create an `output/` directory with the following files:
+**Configuration:**
+```typescript
+scrapingMethod: 'browser'
+headless: true  // or false to see the browser
+```
 
-- **jabama-listings.json**: All scraped listings from Jabama
-- **jajiga-listings.json**: All scraped listings from Jajiga
-- **comparison-results.json**: Detailed comparison results with match scores
-- **comparison-report.txt**: Human-readable summary report
-- **crawler-stats.json**: Statistics about the crawl session
+### Mode 2: Enhanced HTTP Requests
+
+Uses axios with enhanced headers, cookies, and optional proxies.
+
+```bash
+# Run with HTTP mode
+npm run crawl:http
+```
+
+First, update config:
+```typescript
+scrapingMethod: 'http'
+```
+
+**Advantages:**
+- Much faster than browser mode
+- Lower resource usage
+- Good for sites without strong anti-bot measures
+
+**Disadvantages:**
+- May be blocked by anti-bot systems
+- Cannot execute JavaScript
+
+### Mode 3: Manual HTML Files
+
+Perfect for development and testing. Save HTML files manually and test your selectors.
+
+```bash
+# Run with manual mode
+npm run crawl:manual
+```
+
+**Setup:**
+
+1. Update config:
+```typescript
+scrapingMethod: 'manual'
+```
+
+2. Create `manual-html/` directory (done automatically)
+
+3. Save HTML files:
+   - `jabama-search.html` - Search page from Jabama
+   - `jabama-listing-*.html` - Individual listing pages
+   - `jajiga-search.html` - Search page from Jajiga
+   - `jajiga-listing-*.html` - Individual listing pages
+
+4. Run crawler
+
+**How to save HTML:**
+- Method 1: Browser → Right-click → "View Page Source" → Save
+- Method 2: Browser → Ctrl+S → "Webpage, HTML Only"
+- Method 3: curl command (see manual-html/README.md)
+
+## 🔍 API Detection
+
+Before scraping, check if the sites have public APIs:
+
+```bash
+npm run detect-api
+```
+
+This will:
+- Check common API endpoints
+- Analyze robots.txt
+- Look for API documentation
+- Provide guidance for finding APIs using DevTools
+
+## 🛡️ Anti-Bot Bypass Techniques
+
+### 1. Stealth Browser Mode
+
+Puppeteer-extra with stealth plugin makes the browser undetectable:
+
+```typescript
+// Automatically enabled in browser mode
+import puppeteerExtra from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+puppeteerExtra.use(StealthPlugin());
+```
+
+### 2. Realistic Headers
+
+Enhanced HTTP client sends browser-like headers:
+
+```typescript
+'User-Agent': 'Mozilla/5.0...',
+'Accept-Language': 'en-US,en;q=0.9,fa;q=0.8',
+'Sec-Fetch-Dest': 'document',
+'Sec-Fetch-Mode': 'navigate',
+// ... and more
+```
+
+### 3. Cookie Persistence
+
+Cookies are automatically saved and reloaded:
+
+```typescript
+cookieFile: 'cookies.json'
+```
+
+You can manually add cookies from your browser for authentication.
+
+### 4. Proxy Rotation
+
+Configure proxies to rotate IPs:
+
+```typescript
+useProxy: true,
+proxyList: [
+  'http://proxy1.example.com:8080',
+  'http://username:password@proxy2.example.com:8080'
+]
+```
+
+### 5. Human-like Behavior
+
+Browser mode includes:
+- Random delays between actions
+- Automatic page scrolling
+- Realistic viewport sizes
+- Mouse movement (can be added)
+
+## 📊 Output
+
+The crawler creates an `output/` directory with:
+
+- **jabama-listings.json** - All Jabama listings
+- **jajiga-listings.json** - All Jajiga listings
+- **comparison-results.json** - Detailed comparison with match scores
+- **comparison-report.txt** - Human-readable summary
+- **crawler-stats.json** - Runtime statistics
+- **cookies.json** - Saved cookies (if enabled)
 
 ### Example Output
 
@@ -67,13 +246,24 @@ The crawler will create an `output/` directory with the following files:
 ║   Jabama vs Jajiga Listing Comparison Crawler      ║
 ╚══════════════════════════════════════════════════════╝
 
+⚙️  Configuration:
+   Scraping method: browser
+   Concurrency: 3
+   Request delay: 2000ms
+   Headless mode: true
+
+🌐 Initializing browser...
+✅ Browser initialized
+
 Step 1/3: Scraping Jabama listings...
+📄 Fetching: https://www.jabama.com/search
 Found 150 listing URLs on Jabama
+Scraped Jabama listing: Luxury Villa in Tehran
+...
 Successfully scraped 145 listings from Jabama
 
 Step 2/3: Scraping Jajiga listings...
-Found 200 listing URLs on Jajiga
-Successfully scraped 195 listings from Jajiga
+...
 
 Step 3/3: Comparing listings...
 
@@ -85,146 +275,266 @@ Total Jabama listings analyzed: 145
 Exact matches found: 87 (60.0%)
 Partial matches found: 42 (29.0%)
 No matches found: 16 (11.0%)
-
-============================================================
 ```
 
-## Configuration
+## 🎯 How The Matching Works
 
-Edit `src/config.ts` to customize crawler behavior:
+The comparison algorithm uses weighted scoring:
 
-```typescript
-export const config = {
-  maxConcurrency: 5,        // Max simultaneous requests
-  requestDelay: 1000,       // Delay between requests (ms)
-  timeout: 30000,           // Request timeout (ms)
-  retryAttempts: 3,         // Number of retry attempts
-  userAgent: '...'          // User agent string
-};
-```
+| Attribute | Weight | Description |
+|-----------|--------|-------------|
+| Title | 30% | Fuzzy string matching |
+| Location | 25% | Fuzzy string matching |
+| Price | 15% | Proximity match (with tolerance) |
+| Bedrooms | 10% | Exact match |
+| Capacity | 10% | Exact match |
+| Description | 10% | First 200 chars comparison |
 
-## How It Works
+**Match Classifications:**
+- **Exact Match** (≥95%): Very likely the same property
+- **Partial Match** (70-95%): Possibly the same with differences
+- **No Match** (<70%): Different properties
 
-### 1. Scraping Phase
-- The crawler visits Jabama.com and Jajiga.com
-- Discovers listing URLs from search/category pages
-- Extracts detailed information from each listing:
-  - Title, price, location
-  - Capacity, bedrooms, bathrooms
-  - Description, features, images
-  - Host information and ratings
+## 🔧 Customization
 
-### 2. Comparison Phase
-- Uses intelligent matching algorithm with weighted scoring
-- Compares multiple attributes:
-  - **Title similarity** (30% weight)
-  - **Location similarity** (25% weight)
-  - **Price proximity** (15% weight)
-  - **Bedroom count** (10% weight)
-  - **Capacity** (10% weight)
-  - **Description** (10% weight)
+### Update Selectors
 
-### 3. Classification
-- **Exact match** (≥95% score): Very likely the same property
-- **Partial match** (70-95% score): Possibly the same property with differences
-- **No match** (<70% score): Different properties
-
-## Project Structure
-
-```
-.
-├── src/
-│   ├── scrapers/
-│   │   ├── jabama.ts       # Jabama scraper implementation
-│   │   └── jajiga.ts       # Jajiga scraper implementation
-│   ├── comparator.ts       # Listing comparison logic
-│   ├── config.ts           # Configuration settings
-│   ├── types.ts            # TypeScript type definitions
-│   ├── utils.ts            # Utility functions
-│   └── index.ts            # Main entry point
-├── output/                 # Generated output files (created at runtime)
-├── package.json
-├── tsconfig.json
-└── README.md
-```
-
-## Customization
-
-### Updating Scrapers
-
-The scrapers use CSS selectors to extract data from the websites. If the site structure changes, you may need to update the selectors in:
+If websites change their HTML structure, update selectors in:
 
 - `src/scrapers/jabama.ts`
 - `src/scrapers/jajiga.ts`
 
-Look for the selector arrays and DOM queries to adjust them based on the current site structure.
+Look for the selector arrays and adjust based on current site structure.
 
-### Adjusting Match Thresholds
+### Adjust Match Thresholds
 
-In `src/comparator.ts`, you can adjust the matching thresholds:
+In `src/comparator.ts`:
 
 ```typescript
 private readonly EXACT_MATCH_THRESHOLD = 0.95;
 private readonly PARTIAL_MATCH_THRESHOLD = 0.7;
 ```
 
-### Changing Match Weights
+### Change Attribute Weights
 
-Modify the weights in the `calculateMatchScore` method in `src/comparator.ts` to prioritize different attributes.
+In `src/comparator.ts`, modify the `calculateMatchScore` method:
 
-## Important Notes
+```typescript
+const weights = {
+  title: 0.3,
+  location: 0.25,
+  price: 0.15,
+  // ...
+};
+```
 
-### Legal and Ethical Considerations
+## 🐛 Troubleshooting
 
-- **Terms of Service**: Always review and comply with the target websites' Terms of Service
-- **robots.txt**: Respect the robots.txt file of each website
-- **Rate Limiting**: The crawler includes delays to avoid overwhelming servers
-- **Personal Use**: This tool is intended for research and personal use only
-- **Data Usage**: Be responsible with the scraped data and respect privacy
+### 403 Forbidden Errors
 
-### Limitations
+If you get "Access denied" errors:
 
-- The scraper may break if websites change their HTML structure
-- Some listings may not be accessible or may require authentication
-- Dynamic content loaded by JavaScript may not be captured
-- Rate limits and anti-bot measures may affect scraping
+1. **Switch to browser mode** (recommended):
+   ```typescript
+   scrapingMethod: 'browser'
+   ```
 
-## Troubleshooting
+2. **Add cookies manually**:
+   - Visit the site in your browser
+   - Copy cookies from DevTools
+   - Add to `cookies.json`
 
-### No listings found
+3. **Use proxies**:
+   ```typescript
+   useProxy: true
+   proxyList: ['http://proxy:8080']
+   ```
 
-If the crawler returns no listings, the site structure may have changed. You'll need to:
+4. **Try manual mode** for testing:
+   - Save HTML files manually
+   - Set `scrapingMethod: 'manual'`
 
-1. Inspect the target website's HTML structure
-2. Update the CSS selectors in the respective scraper file
-3. Look for listing URLs and update the `getListingUrls()` method
+### No Listings Found
 
-### Connection errors
+If the crawler finds no listings:
 
-- Check your internet connection
-- The websites may be blocking your IP (try adjusting the User-Agent or adding delays)
-- Increase the `timeout` value in config
+1. Check if selectors are correct:
+   - Inspect the website HTML
+   - Update selectors in scraper files
 
-### Memory issues
+2. Use manual mode to test:
+   - Save a search page HTML
+   - Run in manual mode
+   - Check console output
 
-If scraping large numbers of listings:
-- Reduce `maxConcurrency` in config
-- Process listings in batches
-- Increase Node.js memory limit: `NODE_OPTIONS="--max-old-space-size=4096" npm start`
+3. Run API detection:
+   ```bash
+   npm run detect-api
+   ```
 
-## Contributing
+### Browser Issues
 
-Contributions are welcome! Please ensure:
+If Puppeteer fails to launch:
 
-- Code follows the existing TypeScript style
+```bash
+# Install dependencies (Linux)
+sudo apt-get install -y chromium-browser
+
+# Or use system Chrome
+export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+export PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+```
+
+### Memory Issues
+
+For large-scale scraping:
+
+```bash
+# Increase Node.js memory
+NODE_OPTIONS="--max-old-space-size=4096" npm run dev
+
+# Or reduce concurrency in config
+maxConcurrency: 1
+```
+
+## 📚 Project Structure
+
+```
+.
+├── src/
+│   ├── scrapers/
+│   │   ├── jabama.ts           # Jabama scraper
+│   │   └── jajiga.ts           # Jajiga scraper
+│   ├── api-detector.ts         # API detection utility
+│   ├── browser.ts              # Puppeteer browser manager
+│   ├── comparator.ts           # Listing comparison engine
+│   ├── config.ts               # Configuration
+│   ├── fetcher.ts              # Unified fetch utility
+│   ├── http-enhanced.ts        # Enhanced HTTP client
+│   ├── manual-parser.ts        # Manual HTML loader
+│   ├── types.ts                # TypeScript interfaces
+│   ├── utils.ts                # Helper functions
+│   └── index.ts                # Main entry point
+├── manual-html/                # Manual HTML files (manual mode)
+├── output/                     # Generated results
+├── package.json
+├── tsconfig.json
+└── README.md
+```
+
+## 🔐 Legal & Ethical Considerations
+
+**IMPORTANT**: Always follow these guidelines:
+
+1. **Terms of Service**: Review and comply with target websites' ToS
+2. **robots.txt**: Respect the robots.txt directives
+3. **Rate Limiting**: Use reasonable delays (configured by default)
+4. **Personal Use**: This tool is for educational and research purposes only
+5. **Data Privacy**: Be responsible with scraped data
+6. **Attribution**: Don't claim scraped data as your own
+7. **Commercial Use**: Seek permission before commercial use
+
+### Checking robots.txt
+
+```bash
+curl https://www.jabama.com/robots.txt
+curl https://www.jajiga.com/robots.txt
+```
+
+### Responsible Scraping
+
+- ✅ Use reasonable request delays (2+ seconds)
+- ✅ Scrape during off-peak hours
+- ✅ Cache results to avoid repeated requests
+- ✅ Respect rate limits
+- ❌ Don't scrape personal information
+- ❌ Don't overwhelm servers with requests
+- ❌ Don't bypass CAPTCHAs programmatically
+
+## 🚀 Advanced Usage
+
+### Using with Proxies
+
+```typescript
+// config.ts
+useProxy: true,
+proxyList: [
+  'http://10.10.1.10:8080',
+  'socks5://username:password@proxy.example.com:1080'
+]
+```
+
+### Adding Custom Cookies
+
+```json
+// cookies.json
+[
+  {
+    "name": "session_id",
+    "value": "abc123",
+    "domain": ".jabama.com",
+    "path": "/",
+    "expires": 1735689600
+  }
+]
+```
+
+### Taking Screenshots
+
+```typescript
+import { getBrowserManager } from './browser.js';
+
+const browser = await getBrowserManager();
+await browser.screenshot(
+  'https://www.jabama.com',
+  'output/screenshot.png'
+);
+```
+
+### Finding APIs with DevTools
+
+1. Open the website in Chrome
+2. Open DevTools (F12) → Network tab
+3. Filter by "XHR" or "Fetch"
+4. Browse the site
+5. Look for JSON responses
+6. Copy the Request URL and headers
+7. Use those endpoints directly
+
+## 📝 Scripts Reference
+
+```bash
+# Development
+npm run dev              # Run in development mode
+npm run build            # Build TypeScript
+npm start                # Run built version
+
+# Different modes
+npm run crawl:browser    # Browser automation
+npm run crawl:http       # HTTP requests
+npm run crawl:manual     # Manual HTML files
+
+# Utilities
+npm run detect-api       # Detect APIs
+```
+
+## 🤝 Contributing
+
+Contributions welcome! Please ensure:
+
+- Code follows TypeScript best practices
 - All types are properly defined
 - Error handling is comprehensive
 - Comments explain complex logic
 
-## License
+## 📄 License
 
-MIT
+MIT License - See LICENSE file for details
 
-## Disclaimer
+## ⚠️ Disclaimer
 
-This tool is for educational and research purposes only. Users are responsible for ensuring their use complies with all applicable laws and the terms of service of the websites being scraped. The authors assume no liability for misuse of this software.
+This tool is for educational and research purposes only. Users are responsible for ensuring their use complies with all applicable laws and the terms of service of the websites being accessed. The authors assume no liability for misuse of this software.
+
+---
+
+**Made with ❤️ for web scraping enthusiasts and data scientists**

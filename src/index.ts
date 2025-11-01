@@ -5,6 +5,10 @@ import { JajigaScraper } from './scrapers/jajiga.js';
 import { ListingComparator } from './comparator.js';
 import { saveToFile } from './utils.js';
 import type { CrawlerStats } from './types.js';
+import { config, urls } from './config.js';
+import { closeBrowser } from './browser.js';
+import { detectAndReportApis } from './api-detector.js';
+import { getManualHtmlLoader } from './manual-parser.js';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -12,6 +16,40 @@ async function main() {
   console.log('\n╔══════════════════════════════════════════════════════╗');
   console.log('║   Jabama vs Jajiga Listing Comparison Crawler      ║');
   console.log('╚══════════════════════════════════════════════════════╝\n');
+
+  // Show configuration
+  console.log(`⚙️  Configuration:`);
+  console.log(`   Scraping method: ${config.scrapingMethod}`);
+  console.log(`   Concurrency: ${config.maxConcurrency}`);
+  console.log(`   Request delay: ${config.requestDelay}ms`);
+  console.log(`   Headless mode: ${config.headless}`);
+  if (config.useProxy) {
+    console.log(`   Proxy: Enabled (${config.proxyList?.length || 0} proxies)`);
+  }
+  console.log('');
+
+  // Check for API detection mode
+  const args = process.argv.slice(2);
+  if (args.includes('--detect-api')) {
+    console.log('🔍 Running in API detection mode...\n');
+    await detectAndReportApis([
+      { name: 'Jabama', url: urls.jabama.base },
+      { name: 'Jajiga', url: urls.jajiga.base }
+    ]);
+    return;
+  }
+
+  // Validate manual mode
+  if (config.scrapingMethod === 'manual') {
+    const loader = getManualHtmlLoader();
+    const validation = loader.validate();
+    if (!validation.valid) {
+      console.error(`❌ ${validation.message}`);
+      console.log('\nPlease add HTML files to the manual-html/ directory first.');
+      process.exit(1);
+    }
+    console.log(`✅ ${validation.message}\n`);
+  }
 
   const stats: CrawlerStats = {
     totalJabamaListings: 0,
@@ -105,12 +143,19 @@ async function main() {
     stats.errors++;
     stats.endTime = new Date();
     saveToFile('output/crawler-stats.json', stats);
+    await closeBrowser();
     process.exit(1);
+  } finally {
+    // Cleanup: close browser if it was used
+    if (config.scrapingMethod === 'browser') {
+      await closeBrowser();
+    }
   }
 }
 
 // Run the crawler
-main().catch(error => {
+main().catch(async (error) => {
   console.error('Fatal error:', error);
+  await closeBrowser();
   process.exit(1);
 });

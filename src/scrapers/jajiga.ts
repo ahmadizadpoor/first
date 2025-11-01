@@ -1,7 +1,8 @@
 import * as cheerio from 'cheerio';
 import type { Listing } from '../types.js';
-import { fetchWithRetry, sleep, normalizeText, extractNumber, sanitizeUrl } from '../utils.js';
+import { sleep, normalizeText, extractNumber, sanitizeUrl } from '../utils.js';
 import { config, urls } from '../config.js';
+import { fetchUrl } from '../fetcher.js';
 import pLimit from 'p-limit';
 
 export class JajigaScraper {
@@ -46,7 +47,7 @@ export class JajigaScraper {
 
     try {
       // Try to get listings from the main search/listings page
-      const html = await fetchWithRetry(urls.jajiga.search || urls.jajiga.base);
+      const html = await fetchUrl(urls.jajiga.search || urls.jajiga.base);
       const $ = cheerio.load(html);
 
       // Common selectors for listing links - adjust based on actual site
@@ -88,7 +89,7 @@ export class JajigaScraper {
 
   private async scrapeListing(url: string): Promise<Listing | null> {
     try {
-      const html = await fetchWithRetry(url);
+      const html = await fetchUrl(url);
       const $ = cheerio.load(html);
 
       // Extract listing ID from URL
