@@ -42,7 +42,7 @@ export class JabamaScraper {
   }
 
   private async getListingUrls(): Promise<string[]> {
-    const urls: string[] = [];
+    const listingUrls: string[] = [];
 
     try {
       // Try to get listings from the main search/listings page
@@ -66,22 +66,22 @@ export class JabamaScraper {
           const href = $(element).attr('href');
           if (href) {
             const fullUrl = sanitizeUrl(href, urls.jabama.base);
-            if (!urls.includes(fullUrl)) {
-              urls.push(fullUrl);
+            if (!listingUrls.includes(fullUrl)) {
+              listingUrls.push(fullUrl);
             }
           }
         });
 
-        if (urls.length > 0) break; // If we found URLs with this selector, stop
+        if (listingUrls.length > 0) break; // If we found URLs with this selector, stop
       }
 
       // If no URLs found, return a sample set for testing
-      if (urls.length === 0) {
+      if (listingUrls.length === 0) {
         console.warn('No listing URLs found on Jabama. Site structure may have changed.');
         // You might want to manually add some known URLs here for testing
       }
 
-      return [...new Set(urls)]; // Remove duplicates
+      return [...new Set(listingUrls)]; // Remove duplicates
     } catch (error) {
       console.error('Error getting Jabama listing URLs:', error);
       return [];

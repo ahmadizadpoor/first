@@ -1,5 +1,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import { config } from './config.js';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export async function fetchWithRetry(
   url: string,
@@ -88,9 +90,6 @@ export function sanitizeUrl(url: string, baseUrl: string): string {
 }
 
 export function saveToFile(filename: string, data: any): void {
-  const fs = require('fs');
-  const path = require('path');
-
   const dir = path.dirname(filename);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });

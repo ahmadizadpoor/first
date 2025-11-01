@@ -5,6 +5,8 @@ import { JajigaScraper } from './scrapers/jajiga.js';
 import { ListingComparator } from './comparator.js';
 import { saveToFile } from './utils.js';
 import type { CrawlerStats } from './types.js';
+import * as fs from 'fs';
+import * as path from 'path';
 
 async function main() {
   console.log('\n╔══════════════════════════════════════════════════════╗');
@@ -69,8 +71,6 @@ async function main() {
       console.log(report);
 
       // Save report
-      const fs = require('fs');
-      const path = require('path');
       const reportPath = 'output/comparison-report.txt';
       const dir = path.dirname(reportPath);
       if (!fs.existsSync(dir)) {
