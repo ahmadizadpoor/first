@@ -1,5 +1,6 @@
-run = "npm run ui"
+run = "npm install && npm run build && npm run ui"
 entrypoint = "server.js"
+hidden = [".config", "node_modules", "dist"]
 
 [nix]
 channel = "stable-23_11"
@@ -13,3 +14,15 @@ pattern = "**/*.{js,jsx,ts,tsx}"
 
 [languages.javascript.languageServer]
 start = "typescript-language-server --stdio"
+
+[env]
+PUPPETEER_SKIP_DOWNLOAD = "true"
+NODE_ENV = "production"
+
+[packager]
+language = "nodejs"
+
+[packager.features]
+packageSearch = true
+guessImports = true
+enabledForHosting = false
