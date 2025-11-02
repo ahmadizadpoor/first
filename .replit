@@ -1,0 +1,15 @@
+run = "npm run ui"
+entrypoint = "server.js"
+
+[nix]
+channel = "stable-23_11"
+
+[deployment]
+run = ["sh", "-c", "npm install && npm run build && npm run ui"]
+deploymentTarget = "cloudrun"
+
+[languages.javascript]
+pattern = "**/*.{js,jsx,ts,tsx}"
+
+[languages.javascript.languageServer]
+start = "typescript-language-server --stdio"

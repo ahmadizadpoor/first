@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: jabama-jajiga-crawler
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run ui
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      - key: PUPPETEER_SKIP_DOWNLOAD
+        value: true

@@ -38,6 +38,11 @@ let crawlerStatus = {
 
 // API Endpoints
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date() });
+});
+
 // Get current status
 app.get('/api/status', (req, res) => {
   res.json(crawlerStatus);
@@ -237,8 +242,10 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '0.0.0.0';
 
-server.listen(PORT, () => {
-  console.log(`🚀 Crawler UI Server running on http://localhost:${PORT}`);
+server.listen(PORT, HOST, () => {
+  console.log(`🚀 Crawler UI Server running on http://${HOST}:${PORT}`);
   console.log(`📊 Open your browser to view the dashboard`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
