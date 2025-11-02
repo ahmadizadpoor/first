@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jabama vs Jajiga - Listing Crawler & Comparator</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-content">
+                <h1>🏠 Jabama vs Jajiga Crawler</h1>
+                <p class="subtitle">Intelligent listing scraper and price comparator</p>
+            </div>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main>
+            <!-- Control Panel -->
+            <section class="card">
+                <h2>⚙️ Configuration</h2>
+                <div class="config-grid">
+                    <div class="config-item">
+                        <label for="scraping-method">Scraping Method:</label>
+                        <select id="scraping-method">
+                            <option value="manual">Manual (Test Mode)</option>
+                            <option value="http">HTTP Request</option>
+                            <option value="browser">Browser Automation</option>
+                        </select>
+                    </div>
+                    <div class="config-item">
+                        <label for="concurrency">Max Concurrency:</label>
+                        <input type="number" id="concurrency" value="3" min="1" max="10">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="start-btn" class="btn btn-primary">
+                        ▶️ Start Crawler
+                    </button>
+                    <button id="stop-btn" class="btn btn-danger" disabled>
+                        ⏹️ Stop Crawler
+                    </button>
+                </div>
+            </section>
+
+            <!-- Status Panel -->
+            <section class="card">
+                <h2>📊 Status</h2>
+                <div class="status-grid">
+                    <div class="status-item">
+                        <div class="status-label">Status</div>
+                        <div id="status-running" class="status-value">
+                            <span class="badge badge-idle">Idle</span>
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-label">Scraped Listings</div>
+                        <div id="status-scraped" class="status-value">0</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-label">Matches Found</div>
+                        <div id="status-matches" class="status-value">0</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-label">Runtime</div>
+                        <div id="status-runtime" class="status-value">00:00:00</div>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div id="progress-bar" class="progress-bar" style="width: 0%"></div>
+                </div>
+            </section>
+
+            <!-- Logs Panel -->
+            <section class="card">
+                <div class="section-header">
+                    <h2>📝 Logs</h2>
+                    <button id="clear-logs-btn" class="btn btn-sm">Clear</button>
+                </div>
+                <div id="logs-container" class="logs-container">
+                    <div class="log-entry log-info">
+                        <span class="log-time">Ready</span>
+                        <span class="log-message">Configure settings and click "Start Crawler" to begin</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Panel -->
+            <section class="card">
+                <div class="section-header">
+                    <h2>🎯 Comparison Results</h2>
+                    <div class="button-group-sm">
+                        <button id="load-results-btn" class="btn btn-sm">
+                            🔄 Load Results
+                        </button>
+                        <button id="generate-tables-btn" class="btn btn-sm">
+                            📊 Generate Tables
+                        </button>
+                        <button id="export-csv-btn" class="btn btn-sm">
+                            💾 Export CSV
+                        </button>
+                    </div>
+                </div>
+                <div id="results-container" class="results-container">
+                    <div class="empty-state">
+                        <p>No results yet. Run the crawler to see comparisons.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p>Built with ❤️ for intelligent property comparison | Powered by Node.js & Socket.IO</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
